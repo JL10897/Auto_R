@@ -391,9 +391,36 @@ def get_neighbor_coord(im1_cent,im2_cent, im2, X_p,Y_p):
     return(set1p_cent, set2p_cent)
 
 
-def run_doubleICP(im1, im2, bhat, set1p_cent, set2p_cent):
+# def run_doubleICP(im1, im2, bhat, set1p_cent, set2p_cent):
+#     tran_shape=np.array(im2.shape)
+#     max_correspondence_distance = 20
+#     max_iteration = 100
+#     foo = np.c_[set1p_cent, np.ones((set1p_cent.shape[0],1))]   #Nx4
+#     set1p_cent_t = foo@bhat
+    
+#     offset = -(bhat[:3,:3])@bhat[-1]
+#     im1_wahba = ndi.affine_transform(im1, bhat[:3,:3],offset = offset, output_shape = tran_shape)    
+
+#     pcd1 = o3d.geometry.PointCloud()
+#     pcd1.points = o3d.utility.Vector3dVector(set1p_cent_t)
+#     pcd2 = o3d.geometry.PointCloud()
+#     pcd2.points = o3d.utility.Vector3dVector(set2p_cent)
+#     reg_p2p_1 = o3d.pipelines.registration.registration_icp(pcd1,pcd2, max_correspondence_distance = max_correspondence_distance, 
+#                                                           estimation_method = o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=True), 
+#                                                           criteria = o3d.cpu.pybind.pipelines.registration.ICPConvergenceCriteria(max_iteration=max_iteration),)
+#     tran = reg_p2p_1.transformation
+    
+#     while np.isnan(tran).sum()>0:
+#         max_correspondence_distance += 10
+#         reg_p2p_1 = o3d.pipelines.registration.registration_icp(pcd1,pcd2, max_correspondence_distance = max_correspondence_distance, 
+#                                                           estimation_method = o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=True), 
+#                                                           criteria = o3d.cpu.pybind.pipelines.registration.ICPConvergenceCriteria(max_iteration=max_iteration),)
+#         tran = reg_p2p_1.transformation
+#     return(tran, im1_wahba)
+
+def run_doubleICP(im1, im2, bhat, set1p_cent, set2p_cent,max_correspondence_distance=20):
     tran_shape=np.array(im2.shape)
-    max_correspondence_distance = 20
+    max_correspondence_distance = max_correspondence_distance
     max_iteration = 100
     foo = np.c_[set1p_cent, np.ones((set1p_cent.shape[0],1))]   #Nx4
     set1p_cent_t = foo@bhat
@@ -417,7 +444,6 @@ def run_doubleICP(im1, im2, bhat, set1p_cent, set2p_cent):
                                                           criteria = o3d.cpu.pybind.pipelines.registration.ICPConvergenceCriteria(max_iteration=max_iteration),)
         tran = reg_p2p_1.transformation
     return(tran, im1_wahba)
-
 
 def get_final_transformation(tran,bhat):
     A = tran[:3,:3]
